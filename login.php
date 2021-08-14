@@ -1,5 +1,5 @@
 <?php 
-    require_once('config.php');
+    require_once('setup.php');
 	session_start();
 	if(isset($_SESSION['userlogin'])){
 		header("Location: index.php");
@@ -42,7 +42,7 @@
 					<tr>
 						<td>Captcha</td>
 						<td>
-							<input type="text" name="captcha" required/><img src="captcha.php" id="cap" />
+							<input type="text" name="captcha" required/><img src="<?php echo CAPTCHA_PATH; ?>" id="cap" />
 							<input type="button" id="reload" value="Reload" />
 						</td>
 					</tr>
@@ -66,7 +66,7 @@
 		$(function() {
 			$('#reload').click(function(){
 				var d = new Date();
-				$('img').attr('src', 'captcha.php?' + d.getTime());
+				$('img').attr('src', '<?php echo CAPTCHA_PATH; ?>?' + d.getTime());
 			});
 		});
 	</script>	

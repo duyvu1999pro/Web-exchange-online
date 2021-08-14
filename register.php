@@ -1,5 +1,5 @@
 <?php 
-    require_once('config.php');
+    require_once('setup.php');
     ?>
 <!DOCTYPE html>
 <html lang="">
@@ -47,31 +47,20 @@
 </html>
 
 <?php 
-  
-  function isValidUsername($input) { 
-    if(preg_match('/^[a-zA-Z0-9]{6,}$/', $input)) { // no special char, length >= 6
-      return true;
-    }
-    return false;
-  } 
-  function isValidEmail($input) { 
-    if (filter_var($input, FILTER_VALIDATE_EMAIL))
-      return true;
-    return false;
-  } 
 
-  function AccHasExist($input) { 
-    global $mysqli;
-    $query = 'SELECT COUNT(*) FROM user WHERE username = ? '; 
-    $PrepareQuery  = $mysqli->prepare($query);
-    $PrepareQuery->bind_param('s', $input);
-    $result= $PrepareQuery->execute();
-    $PrepareQuery->bind_result($num_rows);
-		$PrepareQuery->fetch();			
-    if ($num_rows >0) 
-        return true;  
+function isFresh($username,$password,$email,$phone)
+{
+  if (empty($username) || empty($password) || empty($email) || empty($phone)) {
     return false;
-  } 
+  }
+  if (!isValidPhone($phone) || !isValidUsername($username) || !isValidEmail($email)) {
+    return false;
+  }
+  return true;
+  
+
+}
+  
   if(isset($_POST['btn_signup']) & !empty($_POST)){
     $username = $_POST['username'];
     $password = $_POST['password'];
@@ -79,8 +68,8 @@
     $email = $_POST['email'];
     $phone = $_POST['phone'];
     
-    if( is_numeric($phone) && isValidUsername($username) && isValidEmail($email) && $password == $repass ){
-      if(!AccHasExist($username)){
+    if( isFresh($username,$password,$email,$phone) && $password == $repass ){
+      if(!UserHasExist($username,$mysqli)){
         $query = 'INSERT INTO user (username, `password`, email, phone) VALUES (?,?,?,?)';    
         $PrepareQuery = $mysqli->prepare($query);
         $PrepareQuery->bind_param('ssss', $username,$password,$email,$phone); 
