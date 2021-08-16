@@ -53,32 +53,29 @@
             <div class="row">
                 <div class="col-md-12">
                     <div class="mt-5 mb-3 clearfix">
-                        <h2 class="pull-left">Quản lý sản phẩm</h2>
+                        <h2 class="pull-left">Danh sách các Admin</h2>
                         <a href="create.php" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Tạo mới </a>
                     </div>
                     <?php             
                    
-                    $sql = "SELECT * FROM product";
+                    $sql = "SELECT * FROM admin";
                     if($result = mysqli_query($mysqli, $sql)){
                         if(mysqli_num_rows($result) > 0){
                             echo '<table class="table table-bordered table-striped">';
                                 echo "<thead>";
                                     echo "<tr>";
                                         echo "<th>#</th>";
-                                        echo "<th>Tên sản phẩm</th>";
-                                        echo "<th>Giá</th>";
-                                        echo "<th>Ảnh minh họa</th>";
-                                        echo "<th>Nội dung</th>";
+                                        echo "<th>Username</th>";
+                                        echo "<th>Password</th>";
+                                        
                                     echo "</tr>";
                                 echo "</thead>";
                                 echo "<tbody>";
                                 while($row = mysqli_fetch_array($result)){
                                     echo "<tr>";
                                         echo "<td>" . $row['id'] . "</td>";
-                                        echo "<td>" . $row['name'] . "</td>";
-                                        echo "<td>" . $row['cost'] . "</td>";
-                                        echo "<td><img src='".PICTURE_PATH. $row['picture'] . "' width='100' height='100' /></td>";
-                                        echo "<td>" . $row['content'] . "</td>";
+                                        echo "<td>" . $row['username'] . "</td>";
+                                        echo "<td>" . $row['password'] . "</td>";
                                         echo "<td>";
                                             echo '<a href="edit.php?id='. $row['id'] .'" class="mr-3" title="Update Record" data-toggle="tooltip"><span class="fa fa-pencil"></span></a>';
                                             echo '<a href="delete.php?id='. $row['id'] .'" title="Delete Record" data-toggle="tooltip"><span class="fa fa-trash"></span></a>';

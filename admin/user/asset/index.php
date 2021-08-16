@@ -1,23 +1,45 @@
 <?php
-  // Include config file
-  require_once "setup.php";
-  session_start();
-	if(!isset($_SESSION['admin'])){
-		header("Location: ../index.php");
-	} 
-    if(isset($_GET['logout'])){
-		session_destroy();
-		unset($_SESSION);
-		header("Location: ../index.php");
-	}
-?>
 
-<?php if(isset($_SESSION['admin'])){ ?>
+require_once "setup.php";
+
+$id = $username = $avatar = $product_id = "";
+
+    if(isset($_GET["id"]) && !empty(trim($_GET["id"]))){  
+        $id =  trim($_GET["id"]);
+        $sql = "SELECT * FROM user WHERE id = ?";
+        if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+            mysqli_stmt_bind_param($PrepareQuery, "i", $param_id);
+            $param_id = $id;
+            if(mysqli_stmt_execute($PrepareQuery)){
+                $result = mysqli_stmt_get_result($PrepareQuery);
+    
+                if(mysqli_num_rows($result) == 1){
+                    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                    $username = $row['username'];      
+                    $avatar = $row['avatar']; 
+                } else{
+                    header("location: ../../error.php");
+                    exit();
+                }    
+            } else{
+                echo "Oops! Something went wrong. Please try again later.";
+            }
+        }
+        mysqli_stmt_close($PrepareQuery);
+      //  mysqli_close($mysqli);
+    }  else{
+        header("location: ../../error.php");
+        exit();
+    }
+
+
+?>
+ 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard</title>
+<meta charset="UTF-8">
+    <title>ASSET PAGE</title>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -40,25 +62,19 @@
     </script>
 </head>
 <body>
-<div class="w3-sidebar w3-light-grey w3-bar-block" style="width:15%">
-  <h3 class="w3-bar-item">Menu</h3>
-  <a href="../user/index.php" class="w3-bar-item w3-button">Người dùng</a>
-  <a href="../product/index.php" class="w3-bar-item w3-button">Sản phẩm</a>
-  <a href="../card/index.php" class="w3-bar-item w3-button">Thẻ nạp</a>
-  <a href="../adm/index.php" class="w3-bar-item w3-button">Admin</a>
-  <a href="index.php?logout=true" class="btn btn-danger pull-right" style="margin-right: 100px;margin-top: 30px;"> thoát </a>
-</div>
 <div class="wrapper">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
                     <div class="mt-5 mb-3 clearfix">
-                        <h2 class="pull-left">Quản lý sản phẩm</h2>
-                        <a href="create.php" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Tạo mới </a>
+                        <h2 class="pull-left">Danh sách vật phẩm của <?php echo $username; ?></h2>
+                         <img src='<?php echo AVATAR_PATH.$avatar; ?>' width='100' height='100' style="margin-left: 40px;" />
+                       <!-- <a href="create.php" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Thêm </a> -->
+                       
                     </div>
                     <?php             
                    
-                    $sql = "SELECT * FROM product";
+                    $sql = "SELECT * FROM product,owned where owned.product_id=product.id and owned.user_id=".$id;
                     if($result = mysqli_query($mysqli, $sql)){
                         if(mysqli_num_rows($result) > 0){
                             echo '<table class="table table-bordered table-striped">';
@@ -69,6 +85,7 @@
                                         echo "<th>Giá</th>";
                                         echo "<th>Ảnh minh họa</th>";
                                         echo "<th>Nội dung</th>";
+                                        echo "<th>Số lượng</th>";
                                     echo "</tr>";
                                 echo "</thead>";
                                 echo "<tbody>";
@@ -79,8 +96,8 @@
                                         echo "<td>" . $row['cost'] . "</td>";
                                         echo "<td><img src='".PICTURE_PATH. $row['picture'] . "' width='100' height='100' /></td>";
                                         echo "<td>" . $row['content'] . "</td>";
+                                        echo "<td>" . $row['quantity'] . "</td>";
                                         echo "<td>";
-                                            echo '<a href="edit.php?id='. $row['id'] .'" class="mr-3" title="Update Record" data-toggle="tooltip"><span class="fa fa-pencil"></span></a>';
                                             echo '<a href="delete.php?id='. $row['id'] .'" title="Delete Record" data-toggle="tooltip"><span class="fa fa-trash"></span></a>';
                                         echo "</td>";
                                     echo "</tr>";
@@ -93,18 +110,15 @@
                             echo '<div class="alert alert-danger"><em>No records were found.</em></div>';
                         }
                     } else{
-                        echo "Oops! Something went wrong. Please try again later.";
+                        echo "Oops! Something went wrong. Please try again later.vu";
                     }
- 
-                    
                     mysqli_close($mysqli);
                     ?>
+                    <a href="../index.php" class="btn btn-secondary ml-2">Cancel</a>
                 </div>
             </div>        
         </div>
     </div>
 
-
 </body>
 </html>
-<?php } ?>

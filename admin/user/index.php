@@ -1,8 +1,19 @@
 <?php
   // Include config file
   require_once "setup.php";
-?>
+  session_start();
 
+	if(!isset($_SESSION['admin'])){
+		header("Location: ../index.php");
+	}
+
+	if(isset($_GET['logout'])){
+		session_destroy();
+		unset($_SESSION);
+		header("Location: ../index.php");
+	}
+?>
+<?php if(isset($_SESSION['admin'])){ ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -36,6 +47,7 @@
   <a href="../product/index.php" class="w3-bar-item w3-button">Sản phẩm</a>
   <a href="../card/index.php" class="w3-bar-item w3-button">Thẻ nạp</a>
   <a href="../adm/index.php" class="w3-bar-item w3-button">Admin</a>
+  <a href="index.php?logout=true" class="btn btn-danger pull-right" style="margin-right: 100px;margin-top: 30px;"> thoát </a>
 </div>
 <div class="wrapper">
         <div class="container-fluid">
@@ -46,7 +58,7 @@
                         <a href="create.php" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Tạo mới </a>
                     </div>
                     <?php             
-                   
+                 
                     $sql = "SELECT * FROM user";
                     if($result = mysqli_query($mysqli, $sql)){
                         if(mysqli_num_rows($result) > 0){
@@ -75,7 +87,7 @@
                                         echo "<td>" . $row['money'] . "</td>";
                                         echo "<td>" . $row['vip'] . "</td>";
                                         echo "<td>";
-                                           // echo '<a href="read.php?id='. $row['id'] .'" class="mr-3" title="View Record" data-toggle="tooltip"><span class="fa fa-eye"></span></a>';
+                                            echo '<a href="asset/index.php?id='. $row['id'] .'" class="mr-3" title="View Asset" data-toggle="tooltip"><span class="fa fa-eye"></span></a>';
                                             echo '<a href="edit.php?id='. $row['id'] .'" class="mr-3" title="Update Record" data-toggle="tooltip"><span class="fa fa-pencil"></span></a>';
                                             echo '<a href="delete.php?id='. $row['id'] .'" title="Delete Record" data-toggle="tooltip"><span class="fa fa-trash"></span></a>';
                                         echo "</td>";
@@ -93,7 +105,9 @@
                     }
  
                     
-                    mysqli_close($mysqli);
+                    mysqli_close($mysqli); 
+             
+                   
                     ?>
                 </div>
             </div>        
@@ -103,3 +117,4 @@
 
 </body>
 </html>
+<?php } ?>

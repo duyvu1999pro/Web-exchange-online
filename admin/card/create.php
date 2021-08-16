@@ -9,27 +9,14 @@ session_start();
 $error="";
 if(isset($_POST['submit']) & !empty($_POST)){
   
-    $name = $_POST["name"];
-    $cost = $_POST["cost"];
-    $content = $_POST["content"];
-    $avatar = basename($_FILES["avatar"]["name"]);
+    $code = md5(uniqid());
+    $money = $_POST["money"];
 
-    $error = isValidInputProduct($name,$cost,$content);
-    if($error == ""){
-       // if (inputIsSafe()) {
-           if($avatar != "")
-           {
-            $avatar = encodeName($avatar);
-            $path = getcwd().DIRECTORY_SEPARATOR;
-            $path .= PICTURE_PATH .$avatar ;
-            move_uploaded_file( $_FILES["avatar"][ 'tmp_name' ], $path );
-           }
-       
-           
-            $sql = "INSERT INTO product (name, cost, picture, content ) VALUES (?,?,?,?)";
+    if($error == ""){     
+            $sql = "INSERT INTO card (code,money) VALUES (?,?)";
              
             if($PrepareQuery = mysqli_prepare($mysqli, $sql)){            
-                mysqli_stmt_bind_param($PrepareQuery, "siss",$name,$cost,$avatar,$content);                    
+                mysqli_stmt_bind_param($PrepareQuery, "si",$code,$money);                    
                 if(mysqli_stmt_execute($PrepareQuery)){                 
                     header("location: index.php");
                     exit();
@@ -63,25 +50,14 @@ if(isset($_POST['submit']) & !empty($_POST)){
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <h2 class="mt-5">Create Product</h2>              
+                    <h2 class="mt-5">Create Card</h2>              
                     <form action="create.php" method="post"  enctype="multipart/form-data">
+                      
                         <div class="form-group">
-                            <label>Tên sản phẩm</label>
-                            <input type="text" name="name" class="form-control" >
-                        </div>
-                        <div class="form-group">
-                            <label>Mức giá</label>
-                            <input type="text" name="cost" class="form-control" >
+                            <label>Giá trị</label>
+                            <input type="text" name="money" class="form-control" >
                         </div>  
-                        <div class="form-group">
-                            <label>Picture</label>                                       
-                             Chọn ảnh upload:
-                            <input type="file" name="avatar" class="form-control" >                
-                        </div>
-                        <div class="form-group">
-                            <label>Nội dung</label>
-                            <textarea name="content" class="form-control "></textarea>
-                        </div>
+                    
                       
                         <?php echo $error; ?>
 

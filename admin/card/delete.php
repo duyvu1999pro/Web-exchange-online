@@ -5,7 +5,7 @@
       header("Location: ../index.php");
   } 
 if(isset($_POST["id"]) && !empty($_POST["id"])){
-    $sql = "DELETE FROM user WHERE id = ?";  
+    $sql = "DELETE FROM card WHERE id = ?";  
     if($PrepareQuery = mysqli_prepare($mysqli, $sql)){    
         mysqli_stmt_bind_param($PrepareQuery, "i", $param_id); 
         $param_id = trim($_POST["id"]);
@@ -26,6 +26,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     }
 }
 ?>
+
 <?php if(isset($_SESSION['admin'])){ ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,7 +46,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <h2 class="mt-5 mb-3">Xóa User</h2>
+                    <h2 class="mt-5 mb-3">Xóa Thẻ</h2>
                     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
                         <div class="alert alert-danger">
                             <input type="hidden" name="id" value="<?php echo trim($_GET["id"]); ?>"/>

@@ -1,7 +1,10 @@
 <?php
 // Include config file
 require_once "setup.php";
-
+session_start();
+	if(!isset($_SESSION['admin'])){
+		header("Location: ../index.php");
+	} 
 
   
 $error="";
@@ -46,7 +49,7 @@ if(isset($_POST['submit']) & !empty($_POST)){
     mysqli_close($mysqli);
  }
 ?>
- 
+ <?php if(isset($_SESSION['admin'])){ ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -69,39 +72,32 @@ if(isset($_POST['submit']) & !empty($_POST)){
                     <form action="create.php" method="post"  enctype="multipart/form-data">
                         <div class="form-group">
                             <label>Username</label>
-                            <input type="text" name="username" class="form-control" >
-                            <span class="invalid-feedback"></span>
+                            <input type="text" name="username" class="form-control" > 
                         </div>
                         <div class="form-group">
                             <label>Password</label>
-                            <input type="text" name="password" class="form-control" >                       
-                            <span class="invalid-feedback"></span>
+                            <input type="text" name="password" class="form-control" >                         
                         </div>
                         <div class="form-group">
                             <label>Email</label>
                             <input type="text" name="email" class="form-control" >
-                            <span class="invalid-feedback"></span>
                         </div>
                         <div class="form-group">
                             <label>Phone</label>
                             <input type="text" name="phone" class="form-control" >
-                            <span class="invalid-feedback"></span>
                         </div>
                         <div class="form-group">
                             <label>Avatar</label>                                       
                              Chọn ảnh upload:
                             <input type="file" name="avatar" class="form-control" >                
-                            <span class="invalid-feedback"></span>
                         </div>
                         <div class="form-group">
                             <label>Money</label>
                             <input type="text" name="money" class="form-control" value="0" >
-                            <span class="invalid-feedback"></span>
                         </div>
                         <div class="form-group">
                             <label>Vip</label>
                             <input type="date" name="vip" class="form-control" value="2003-10-23" >
-                            <span class="invalid-feedback"></span>
                         </div>
                         <?php echo $error; ?>
 
@@ -114,3 +110,4 @@ if(isset($_POST['submit']) & !empty($_POST)){
     </div>
 </body>
 </html>
+<?php } ?>

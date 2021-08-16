@@ -104,6 +104,7 @@
      
       return $error;
   }
+ 
   function UserHasExist($user_name, $mysqli) { 
     $query = 'SELECT COUNT(*) FROM user WHERE username = ? '; 
     $PrepareQuery  = $mysqli->prepare($query);

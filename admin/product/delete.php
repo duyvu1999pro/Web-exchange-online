@@ -1,6 +1,9 @@
 <?php
   require_once "setup.php";
-
+  session_start();
+  if(!isset($_SESSION['admin'])){
+      header("Location: ../index.php");
+  } 
 if(isset($_POST["id"]) && !empty($_POST["id"])){
     $sql = "DELETE FROM product WHERE id = ?";  
     if($PrepareQuery = mysqli_prepare($mysqli, $sql)){    
@@ -24,6 +27,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
 }
 ?>
 
+<?php if(isset($_SESSION['admin'])){ ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -59,3 +63,4 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     </div>
 </body>
 </html>
+<?php } ?>

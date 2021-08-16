@@ -1,7 +1,10 @@
 <?php
 
 require_once "setup.php";
-
+session_start();
+	if(!isset($_SESSION['admin'])){
+		header("Location: ../index.php");
+    }    
 $id = $username = $password = $email = $phone = $avatar = $money = $vip = "";
  
 if(isset($_POST['submit']) & !empty($_POST)){
@@ -92,7 +95,7 @@ else
 }
 
 ?>
- 
+ <?php if(isset($_SESSION['admin'])){ ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -111,7 +114,7 @@ else
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <h2 class="mt-5">Create User</h2>              
+                    <h2 class="mt-5">Update User</h2>              
                     <form action="edit.php" method="post"  enctype="multipart/form-data">
                         <div class="form-group">
                             <label>Username</label>
@@ -162,3 +165,4 @@ else
     </div>
 </body>
 </html>
+<?php } ?>
