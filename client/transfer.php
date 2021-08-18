@@ -7,7 +7,7 @@ session_start();
 
 ?>
 
-
+<?php if(isset($_SESSION['userlogin'])){ ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -62,13 +62,34 @@ session_start();
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="profile.php"><span class="glyphicon glyphicon-user"></span> Thông tin cá nhân</a></li>
-        <li><a href="cart.php"><span class="glyphicon glyphicon-shopping-cart"></span> Giỏ hàng </a></li>
+        <!-- <li><a href="cart.php"><span class="glyphicon glyphicon-shopping-cart"></span> Giỏ hàng </a></li> -->
         <li><a href="<?php echo ROOT_PATH; ?>index.php?logout=true"><span class="glyphicon glyphicon-off"></span>Thoát</a></li>
       </ul>
     </div>
   </div>
 
 </nav>
+<?php
+  $username="";
+  $money="";
+	$sql = "SELECT * FROM user WHERE id = ? ";
+  if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+      mysqli_stmt_bind_param($PrepareQuery, "i", $param_id);
+      $param_id = $_SESSION['userlogin'];
+      if(mysqli_stmt_execute($PrepareQuery)){
+          $result = mysqli_stmt_get_result($PrepareQuery); 
+          if(mysqli_num_rows($result) == 1){
+              $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+              $username = $row['username'];  
+              $money =    $row['money'];  
+          }
+        }
+      }
+ ?>
+<div class="form-group">
+<p><b>Username : </b><?php echo $username; ?></p>
+<p><b>Số tiền hiện có : </b><?php echo $money; ?> VNĐ</p>
+                    </div>
   <div class="wrapper">
         <div class="container-fluid">
             <div class="row">
@@ -96,3 +117,4 @@ session_start();
     </div>
 </body>
 </html>
+<?php } ?>

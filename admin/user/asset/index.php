@@ -80,7 +80,7 @@ $id = $username = $avatar = $product_id = "";
                             echo '<table class="table table-bordered table-striped">';
                                 echo "<thead>";
                                     echo "<tr>";
-                                        echo "<th>#</th>";
+                                     //   echo "<th>#</th>";
                                         echo "<th>Tên sản phẩm</th>";
                                         echo "<th>Giá</th>";
                                         echo "<th>Ảnh minh họa</th>";
@@ -91,7 +91,7 @@ $id = $username = $avatar = $product_id = "";
                                 echo "<tbody>";
                                 while($row = mysqli_fetch_array($result)){
                                     echo "<tr>";
-                                        echo "<td>" . $row['id'] . "</td>";
+                                        //echo "<td>" . $row['id'] . "</td>";
                                         echo "<td>" . $row['name'] . "</td>";
                                         echo "<td>" . $row['cost'] . "</td>";
                                         echo "<td><img src='".PICTURE_PATH. $row['picture'] . "' width='100' height='100' /></td>";

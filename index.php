@@ -64,30 +64,89 @@ session_start();
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="<?php echo CLIENT_PATH; ?>profile.php"><span class="glyphicon glyphicon-user"></span> Thông tin cá nhân</a></li>
-        <li><a href="<?php echo CLIENT_PATH; ?>cart.php"><span class="glyphicon glyphicon-shopping-cart"></span> Giỏ hàng </a></li>
+        <!-- <li><a href="<?php //echo CLIENT_PATH; ?>cart.php"><span class="glyphicon glyphicon-shopping-cart"></span> Giỏ hàng </a></li> -->
         <li><a href="index.php?logout=true"><span class="glyphicon glyphicon-off"></span>Thoát</a></li>
       </ul>
     </div>
   </div>
 
 </nav>
+<?php
+  $username="";
+  $money="";
+	$sql = "SELECT * FROM user WHERE id = ? ";
+  if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+      mysqli_stmt_bind_param($PrepareQuery, "i", $param_id);
+      $param_id = $_SESSION['userlogin'];
+      if(mysqli_stmt_execute($PrepareQuery)){
+          $result = mysqli_stmt_get_result($PrepareQuery); 
+          if(mysqli_num_rows($result) == 1){
+              $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+              $username = $row['username'];  
+              $money =    $row['money'];  
+          }
+        }
+      }
+ ?>
 <div class="form-group">
-<p><b>Số tiền hiện tại là :</b></p>
+<p><b>Username : </b><?php echo $username; ?></p>
+<p><b>Số tiền hiện có : </b><?php echo $money; ?> VNĐ</p>
                     </div>
 
 
+
+<?php 
+$i = 1;
+$sql = "SELECT * FROM product";
+if($result = mysqli_query($mysqli, $sql)){
+  if(mysqli_num_rows($result) > 0){
+    while($row = mysqli_fetch_array($result)){
+      if ($i%4==1) {
+        echo '<div class="container">';
+        echo '<div class="row">';
+      }
+      echo '<div class="col-sm-3">';
+      echo '<div class="panel panel-success">';
+      echo '<div class="panel-heading">'.$row['name'].'</div>';
+      echo '<div class="panel-body"><img src="'.PICTURE_PATH.$row['picture'].'" class="img-responsive" width="100" height="100" alt="Image">'. $row['content'].'</div>';
+      echo '<div class="panel-footer">'.$row['cost'].' VNĐ<br>
+      <a href="'.CLIENT_PATH.'buy.php?id='.$row['id'].'" title="Mua đồ" data-toggle="tooltip">
+      <button type="button" class="btn btn-danger">Mua</button></a>
+      </div>';
+      echo '</div>';
+      echo '</div>';
+      if ($i%4 == 0 ) {
+        echo '</div>';
+        echo ' </div><br>';
+      } 
+      $i++;
+    }
+    if ($i%4 != 0 ) {
+      echo '</div>';
+      echo ' </div><br>';
+    }
+    mysqli_free_result($result);
+  }
+  else{
+    echo '<div class="alert alert-danger"><em>No records were found.</em></div>';
+}
+} else{
+echo "Oops! Something went wrong. Please try again later.";
+}
+mysqli_close($mysqli);
+
+?>  
+<!-- 
 <div class="container">   
-
   <div class="row">
-
     <div class="col-sm-4">
       <div class="panel panel-primary">
         <div class="panel-heading">BLACK FRIDAY DEAL</div>
         <div class="panel-body"><img src="https://placehold.it/150x80?text=IMAGE" class="img-responsive" style="width:100%" alt="Image"></div>
-        <div class="panel-footer"><button type="button" class="btn btn-danger">Add</button></div>
-        
+        <div class="panel-footer"><button type="button" class="btn btn-danger">Add</button></div>   
       </div>
     </div>
+
     <div class="col-sm-4"> 
       <div class="panel panel-danger">
         <div class="panel-heading">BLACK FRIDAY DEAL</div>
@@ -129,7 +188,10 @@ session_start();
       </div>
     </div>
   </div>
-</div><br><br>
+</div><br> -->
+
+
+
 
 </body>
 </html>

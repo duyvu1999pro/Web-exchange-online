@@ -90,35 +90,52 @@ function remember_me()
 
 //session_start();
 if(isset($_POST['btn_submit']) & !empty($_POST)){
-	//if($_POST['captcha'] == $_SESSION['captcha']){
+	if($_POST['captcha'] == $_SESSION['captcha']){
 
 		$username = $_POST['username'];
 		$password = $_POST['password']; 
 
-		
-		$query = 'SELECT COUNT(*) FROM `user` WHERE `username` = ? AND `password` = ? '; 
-        $PrepareQuery  = $mysqli->prepare($query);
-		$PrepareQuery->bind_param('ss', $username,$password);
-		$result= $PrepareQuery->execute();
+		$sql = "SELECT * FROM user WHERE username = ? AND password = ?";
+        if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+            mysqli_stmt_bind_param($PrepareQuery, "ss", $username,$password);
+            //$param_id = $id;
+            if(mysqli_stmt_execute($PrepareQuery)){
+                $result = mysqli_stmt_get_result($PrepareQuery); 
+                if(mysqli_num_rows($result) == 1){
+                    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                    $_SESSION['userlogin'] = $row['id'];          
+					remember_me();
+					header("Location: index.php");            
+                }
+				else
+				echo 'Đăng nhập thất bại';
+			}
+		} 
+			mysqli_stmt_close($PrepareQuery);
+			mysqli_close($mysqli);
+		// $query = 'SELECT COUNT(*) FROM `user` WHERE `username` = ? AND `password` = ? '; 
+        // $PrepareQuery  = $mysqli->prepare($query);
+		// $PrepareQuery->bind_param('ss', $username,$password);
+		// $result= $PrepareQuery->execute();
 
 		  
-		if($result ){ 
-			$PrepareQuery->bind_result($num_rows);
-			$PrepareQuery->fetch();
-			if($num_rows >0 ){
-				echo "đăng nhập thành công";
-				$_SESSION['userlogin'] = $username;
-				remember_me();
-				header("Location: index.php");
-			}
-			else
-         		 echo 'Đăng nhập thất bại';
-		}		 
-	// }
-    // else {
-    //     echo "Invalid captcha";
-    //     }
-	$mysqli->close();
+		// if($result ){ 
+		// 	$PrepareQuery->bind_result($num_rows);
+		// 	$PrepareQuery->fetch();
+		// 	if($num_rows >0 ){
+		// 		echo "đăng nhập thành công";
+		// 		$_SESSION['userlogin'] = $username;
+		// 		remember_me();
+		// 		header("Location: index.php");
+		// 	}
+		// 	else
+        //  		 echo 'Đăng nhập thất bại';
+		// }		 
+	 }
+    else {
+        echo "Invalid captcha";
+        }
+	//$mysqli->close();
     
 }
 ?>

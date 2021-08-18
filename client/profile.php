@@ -4,10 +4,85 @@ session_start();
 	if(!isset($_SESSION['userlogin'])){
 		header("Location: ".ROOT_PATH."login.php");
 	}
+  $username = $password = $email =  $phone = $avatar = $money = $vip = "";
+  $sql = "SELECT * FROM user WHERE id = ? ";
+  if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+      mysqli_stmt_bind_param($PrepareQuery, "i", $user_id);
+      $user_id = $_SESSION['userlogin'];
+      if(mysqli_stmt_execute($PrepareQuery)){
+          $result = mysqli_stmt_get_result($PrepareQuery); 
+          if(mysqli_num_rows($result) == 1){
+              $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+              $username = $row['username'];    
+              $password = $row['password'];    
+              $email =  $row['email'];    
+              $phone = $row['phone'];    
+              $avatar = $row['avatar'];    
+              $money = $row['money'];    
+              $vip =   $row['vip'];      		
+          }
+        }
+        mysqli_stmt_close($PrepareQuery);
+        //mysqli_close($mysqli);
+  }
+  if(isset($_POST['update']) & !empty($_POST)){
+    
+    $email = $_POST["email"];
+    $phone = $_POST["phone"];
+    if(isValidEmail($email) && isValidPhone($phone))
+    {
+      if(basename($_FILES["avatar"]["name"]) != "")
+      {
+        $avatar = basename($_FILES["avatar"]["name"]);
+       $avatar = encodeName($avatar);
+       $path = getcwd().DIRECTORY_SEPARATOR;
+       $path .= AVATAR_PATH .$avatar ;
+       move_uploaded_file( $_FILES["avatar"][ 'tmp_name' ], $path );
+       $sql = "UPDATE user SET avatar=? WHERE user.id=?";
+       if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+          mysqli_stmt_bind_param($PrepareQuery, "si",$avatar,$id);
+          $id = $_SESSION['userlogin'];
+          mysqli_stmt_execute($PrepareQuery);
+        }
+      }
+      $sql = "UPDATE user SET email=?, phone=? WHERE user.id=?";
+      if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+          mysqli_stmt_bind_param($PrepareQuery, "ssi",$email,$phone,$id);
+          $id = $_SESSION['userlogin'];
+          mysqli_stmt_execute($PrepareQuery);
+      }
+      echo "cập nhật thông tin cá nhân thành công";
+    }
+    else
+      echo "email hoặc sđt không đúng";
+  }
 
+  if(isset($_POST['ch-pass']) & !empty($_POST)){
+    //$temp_pass = $_POST["newpass"];
+      if($_POST["oldpass"] != $password)
+      {
+        echo "pass cũ không đúng";
+      }
+      else if ($_POST["newpass"] == "")
+      {
+        echo "chưa nhập pass";
+      }
+      else
+      {
+        $sql = "UPDATE user SET password=? WHERE id=?";
+        if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+            mysqli_stmt_bind_param($PrepareQuery, "si",$password,$id);
+            $id = $_SESSION['userlogin'];
+            $password = $_POST["newpass"];
+            mysqli_stmt_execute($PrepareQuery);
+            echo "đổi pass thành công";
+        }
+
+      }
+  }
 ?>
 
-
+<?php if(isset($_SESSION['userlogin'])){ ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -60,7 +135,7 @@ session_start();
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="active"><a href="profile.php"><span class="glyphicon glyphicon-user"></span> Thông tin cá nhân</a></li>
-        <li><a href="cart.php"><span class="glyphicon glyphicon-shopping-cart"></span> Giỏ hàng </a></li>
+        <!-- <li><a href="cart.php"><span class="glyphicon glyphicon-shopping-cart"></span> Giỏ hàng </a></li> -->
         <li><a href="<?php echo ROOT_PATH; ?>index.php?logout=true"><span class="glyphicon glyphicon-off"></span>Thoát</a></li>
       </ul>
     </div>
@@ -74,10 +149,24 @@ session_start();
   <div class="col-md-3">                
                     <form action="profile.php" method="post"  enctype="multipart/form-data">
                         <div class="form-group">
-                            <img src='../image/avatar/chinh.PNG' width='300' height='300' style="margin-bottom: 20px;"/>
-                            <label>Username: </label> chinhxu123<br>
-                            <label>Số tiền hiện có: </label> 1 VNĐ<br>
-                            <label>Hiệu lực Vip còn:   </label> 0 ngày<br>
+                            <img src='<?php echo AVATAR_PATH.$avatar; ?>' width='300' height='300' style="margin-bottom: 20px;"/>
+                            <label>Username: </label> <?php echo $username; ?><br>
+                            <label>Số tiền hiện có: </label> <?php echo $money; ?> VNĐ<br>
+                            <label>Hiệu lực Vip còn:   </label> <?php 
+                            $today = date("Y-m-d");
+                            if ($today > $vip) {
+                              echo "0";
+                            }
+                            else
+                            {
+                              $datetime1 = strtotime($today);
+                              $datetime2 = strtotime($vip);
+
+                              $secs = $datetime2 - $datetime1;
+                              $days = $secs / 86400;
+                              echo ($days+1);
+                            }
+                            ?> ngày<br>
                         </div>         
                     </form>
   </div>
@@ -88,51 +177,61 @@ session_start();
                       
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="text" name="email" class="form-control" >
-                            <span class="invalid-feedback"></span>
+                            <input type="text" name="email" class="form-control" value="<?php echo $email; ?>" >
                         </div>
                         <div class="form-group">
                             <label>Số điện thoại</label>
-                            <input type="text" name="phone" class="form-control" >
-                            <span class="invalid-feedback"></span>
+                            <input type="text" name="phone" class="form-control" value="<?php echo $phone; ?>">
                         </div>
                         <div class="form-group">
                             <label>Avatar</label>                                       
                             <input type="file" name="avatar" class="form-control" >                
-                            <span class="invalid-feedback"></span>
                         </div>
-                        <input type="submit" class="btn btn-primary" name="submit" value="Cập nhật">      
+                        <input type="submit" class="btn btn-primary" name="update" value="Cập nhật">      
                         <div class="form-group">
                         <label>Mật khẩu cũ</label>
-                            <input type="text" name="username" class="form-control" >
+                            <input type="password" name="oldpass" class="form-control" >
                             <label>Mật khẩu mới</label>
-                            <input type="text" name="username" class="form-control" >
+                            <input type="password" name="newpass" class="form-control" >
                         </div>
-                        <input type="submit" class="btn btn-primary" name="submit" value="Đổi mật khẩu">    
+                        <input type="submit" class="btn btn-primary" name="ch-pass" value="Đổi mật khẩu">    
                     </form>
   </div>
   
   <div class="container-fluid bg-3 text-center">    
   <h3 >item hiện có</h3>   
-  <div class="row">
-    <div class="col-sm-3">
-      <p>Some text..</p>
-      <img src="../image/avatar/chinh.PNG" class="img-responsive"  width='50' height='50'alt="Image">
-    </div>
-    <div class="col-sm-3"> 
-      <p>Some text..</p>
-      <img src="../image/avatar/chinh.PNG" class="img-responsive"  width='50' height='50'alt="Image">
-    </div>
-    <div class="col-sm-3"> 
-      <p>Some text..</p>
-      <img src="../image/avatar/chinh.PNG" class="img-responsive"  width='50' height='50'alt="Image">
-    </div>
-    <div class="col-sm-3">
-      <p>Some text..</p>
-      <img src="../image/avatar/chinh.PNG" class="img-responsive"  width='50' height='50'alt="Image">
-    </div>
-  </div>
-</div><br><br>
+  <?php 
+  $i = 1;
+  $sql = "SELECT * FROM product,owned where owned.product_id=product.id and owned.user_id=".$_SESSION['userlogin'];
+  if($result = mysqli_query($mysqli, $sql)){
+    if(mysqli_num_rows($result) > 0){
+      while($row = mysqli_fetch_array($result)){
+        if ($i%3==1) {
+          echo '<div class="container"  style="margin-right: -15px;>';
+          echo '<div class="row" >';
+        }
+        echo '<div class="col-sm-2">';
+        echo '<div class="panel panel-success">';
+        echo '<div class="panel-heading">'.$row['name'].'</div>';
+        echo '<div class="panel-body"><img src="'.PICTURE_PATH.$row['picture'].'" class="img-responsive" width="50" height="50" alt="Image" style="margin-left: 30px;"></div>';
+        echo '<div class="panel-footer">Số lượng: '.$row['quantity'].'</div>';
+        //echo '<p >'.$row['name'].'</p>';
+      // cho '<img src="'.PICTURE_PATH.$row['picture'].'" class="img-responsive" width="50" height="50" alt="Image" style="margin-left: 100px;">';
+        echo '</div>';
+        echo '</div>';
+        $i++;
+      }
+      if ($i%3 != 0 ) {
+        echo '</div>';
+        echo ' </div><br>';
+      }
+    }
+  }
+  mysqli_close($mysqli);
+  ?>
+
+</div>
+<br><br>
 
 
 
@@ -141,3 +240,4 @@ session_start();
 
 </body>
 </html>
+<?php } ?>
