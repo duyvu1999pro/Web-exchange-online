@@ -4,6 +4,38 @@ session_start();
 	if(!isset($_SESSION['userlogin'])){
 		header("Location: ".ROOT_PATH."login.php");
 	}
+  if(isset($_POST["submit"]) && !empty($_POST["submit"]) ){
+    $money= $code = $id_card = "";
+    $check = 0;
+    $sql = "SELECT * FROM card WHERE code = ? ";
+    if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+        mysqli_stmt_bind_param($PrepareQuery, "s", $code);
+        $code = $_POST["card"];
+        if(mysqli_stmt_execute($PrepareQuery)){
+            $result = mysqli_stmt_get_result($PrepareQuery); 
+            if(mysqli_num_rows($result) == 1){
+                $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                $money = $row['money']; 
+                $id_card = $row['id'];      
+                $check = 1;  		
+            }
+            else
+            echo "mã thẻ không đúng";
+         }
+    }
+    if ($check == 1) { 
+      $sql = "call recharge(?,?,?) ";
+      if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+          mysqli_stmt_bind_param($PrepareQuery, "iii",$card_id, $user_id,$money);
+          $card_id = $id_card ;
+          $user_id = $_SESSION['userlogin'];
+         mysqli_stmt_execute($PrepareQuery);
+      } 
+         
+      echo "nạp thẻ thành công";
+    }
+   
+  }
 
 ?>
 
@@ -54,7 +86,7 @@ session_start();
       <ul class="nav navbar-nav">   
         <li><a href="<?php echo ROOT_PATH; ?>index.php">Trang chủ</a></li>
         <li><a href="transfer.php">Chuyển tiền</a></li>
-        <li class="active"><a href="rechargeCard.php">Nạp thẻ</a></li>
+        <li class="active"><a href="card.php">Nạp thẻ</a></li>
         <li><a href="UpdateVip.php">Nâng vip</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -82,6 +114,8 @@ session_start();
           }
         }
       }
+       mysqli_stmt_close($PrepareQuery);
+          mysqli_close($mysqli);
  ?>
 <div class="form-group">
 <p><b>Username : </b><?php echo $username; ?></p>
@@ -91,18 +125,17 @@ session_start();
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-6">
-           
-                    <form action="transfer.php" method="post"  enctype="multipart/form-data">
-                        <div class="form-group">
-                        <p>Số tiền hiện có: 324</p>     
+                    <form action="card.php" method="post"  enctype="multipart/form-data">
+                        <div class="form-group">  
                             <label>Nhập mã thẻ</label>
-                            <input type="text" name="username" class="form-control" size="30" >
+                            <input type="text" name="card" class="form-control" size="30" >
                             <span class="invalid-feedback"></span>
+                            
                         </div>
-            
                         <div class="form-group">
-                            <button type="button" class="btn btn-danger" style="margin-left: 50px;" >Xác nhận</button>
-                        </div>
+                            <input type="submit" class="btn btn-primary" name="submit" value="Xác nhận"> 
+                            </div>  
+                        
                     </form>
                 </div>
             </div>        

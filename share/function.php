@@ -122,4 +122,30 @@
     return $string;
   } 
 
+  function vipLeft($vip)
+  {
+    $today = date("Y-m-d");
+    $output = 0;
+    if ($today > $vip) {
+      return $output;
+    }
+
+      $datetime1 = strtotime($today);
+      $datetime2 = strtotime($vip);
+
+      $secs = $datetime2 - $datetime1;
+      $days = $secs / 86400;
+      $output = $days+1;
+      return $output;
+
+  }
+  function addDate( $dayNums, $beginDate )
+  {
+    $result ="";
+    $secs = $dayNums * 86400;
+    $datetime = strtotime($beginDate);
+    $datetime = $datetime + $secs;
+    $result = date('Y-m-d', $datetime);
+    return $result;
+  }
 ?>

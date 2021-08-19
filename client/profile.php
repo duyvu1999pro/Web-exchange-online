@@ -130,7 +130,7 @@ session_start();
       <ul class="nav navbar-nav">   
         <li><a href="<?php echo ROOT_PATH; ?>index.php">Trang chủ</a></li>
         <li><a href="transfer.php">Chuyển tiền</a></li>
-        <li><a href="rechargeCard.php">Nạp thẻ</a></li>
+        <li><a href="card.php">Nạp thẻ</a></li>
         <li><a href="UpdateVip.php">Nâng vip</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -152,21 +152,7 @@ session_start();
                             <img src='<?php echo AVATAR_PATH.$avatar; ?>' width='300' height='300' style="margin-bottom: 20px;"/>
                             <label>Username: </label> <?php echo $username; ?><br>
                             <label>Số tiền hiện có: </label> <?php echo $money; ?> VNĐ<br>
-                            <label>Hiệu lực Vip còn:   </label> <?php 
-                            $today = date("Y-m-d");
-                            if ($today > $vip) {
-                              echo "0";
-                            }
-                            else
-                            {
-                              $datetime1 = strtotime($today);
-                              $datetime2 = strtotime($vip);
-
-                              $secs = $datetime2 - $datetime1;
-                              $days = $secs / 86400;
-                              echo ($days+1);
-                            }
-                            ?> ngày<br>
+                            <label>Thời hạn Vip :   </label> <?php echo vipLeft($vip); ?> ngày<br>
                         </div>         
                     </form>
   </div>

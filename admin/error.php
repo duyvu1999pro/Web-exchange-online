@@ -1,3 +1,4 @@
+<?php echo "trang thông báo lỗi "; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

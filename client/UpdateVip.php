@@ -4,7 +4,73 @@ session_start();
 	if(!isset($_SESSION['userlogin'])){
 		header("Location: ".ROOT_PATH."login.php");
 	}
+  $username="";
+  $money="";
+  $vip ="";
+	$sql = "SELECT * FROM user WHERE id = ? ";
+  if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+      mysqli_stmt_bind_param($PrepareQuery, "i", $param_id);
+      $param_id = $_SESSION['userlogin'];
+      if(mysqli_stmt_execute($PrepareQuery)){
+          $result = mysqli_stmt_get_result($PrepareQuery); 
+          if(mysqli_num_rows($result) == 1){
+              $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+              $username = $row['username'];  
+              $money =    $row['money'];  
+              $vip =    $row['vip'];  
+          }
+        }
+      }
+  if(isset($_POST["submit"]) && isset($_POST["vip"])){
 
+   
+    $check = 0;
+    $cost= 0;
+    if ($_POST["vip"] == 3 ) {
+      $check = 1;
+      $cost = 50000;
+    }
+    if ($_POST["vip"] == 7 ) {
+      $check = 1;
+      $cost = 100000;
+    }
+    if ($_POST["vip"] == 30 ) {
+      $check = 1;
+      $cost = 300000;
+    }
+    if ($_POST["vip"] == 365 ) {
+      $check = 1;
+      $cost = 2500000;
+    }
+    if ($check == 1) {
+      if ($money < $cost) {
+        echo " không đủ tiền ";
+      }
+      else
+      {
+        $money = $money - $cost;
+        $date = "";
+        if (vipLeft($vip) > 0 ) {
+
+          $date = addDate( $_POST["vip"]-1, $vip );
+        }
+        else
+        {
+            $date = addDate( $_POST["vip"]-1, date("Y-m-d") );
+        }
+        
+        $sql = "UPDATE user SET money=?,vip=? WHERE id=?";
+        if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+            mysqli_stmt_bind_param($PrepareQuery, "isi",$money, $date, $user_id);
+            $user_id = $_SESSION['userlogin'];
+           mysqli_stmt_execute($PrepareQuery);
+           echo "nâng vip thành công";
+        } 
+      }
+    
+    }
+    
+  }
 ?>
 
 <?php if(isset($_SESSION['userlogin'])){ ?>
@@ -54,7 +120,7 @@ session_start();
       <ul class="nav navbar-nav">   
         <li><a href="<?php echo ROOT_PATH; ?>index.php">Trang chủ</a></li>
         <li><a href="transfer.php">Chuyển tiền</a></li>
-        <li><a href="rechargeCard.php">Nạp thẻ</a></li>
+        <li><a href="card.php">Nạp thẻ</a></li>
         <li class="active"><a href="UpdateVip.php">Nâng vip</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -65,23 +131,7 @@ session_start();
     </div>
   </div>
 </nav>
-<?php
-  $username="";
-  $money="";
-	$sql = "SELECT * FROM user WHERE id = ? ";
-  if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
-      mysqli_stmt_bind_param($PrepareQuery, "i", $param_id);
-      $param_id = $_SESSION['userlogin'];
-      if(mysqli_stmt_execute($PrepareQuery)){
-          $result = mysqli_stmt_get_result($PrepareQuery); 
-          if(mysqli_num_rows($result) == 1){
-              $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-              $username = $row['username'];  
-              $money =    $row['money'];  
-          }
-        }
-      }
- ?>
+
 <div class="form-group">
 <p><b>Username : </b><?php echo $username; ?></p>
 <p><b>Số tiền hiện có : </b><?php echo $money; ?> VNĐ</p>
@@ -90,22 +140,21 @@ session_start();
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-6">
-                    <p>Số tiền hiện có: 324</p>     
-                    <p>Hiệu lực Vip còn: 0 ngày</p>        
+                    <p><b>Thời hạn Vip:</b> <?php echo vipLeft($vip); ?> ngày</p>        
                     <form action="UpdateVip.php" method="post"  enctype="multipart/form-data">
                         <div class="form-group">
                             <label>Mua Vip để được hưởng ưu đãi giảm giá 30% cho tất cả các sản phẩm</label>
-                            <select name="cars" id="cars" class="btn btn-default" style="width:250px;">
-                            <option value="volvo" class="btn btn-default"  >3 ngày  -  50.000 VNĐ</option>
-                            <option value="audi" class="btn btn-default"  >1 tuần  -  100.000 VNĐ</option>
-                            <option value="saab" class="btn btn-default"  >1 tháng  -  300.000 VNĐ</option>
-                            <option value="opel" class="btn btn-default"  >1 năm  -  2.500.000 VNĐ</option> 
+                            <select name="vip"  class="btn btn-default" style="width:250px;">
+                            <option value="3" class="btn btn-default"  >3 ngày  -  50.000 VNĐ</option>
+                            <option value="7" class="btn btn-default"  >7 ngày  -  100.000 VNĐ</option>
+                            <option value="30" class="btn btn-default"  >30 ngày  -  300.000 VNĐ</option>
+                            <option value="365" class="btn btn-default"  >365 ngày  -  2.500.000 VNĐ</option> 
                             </select>      
                         </div>
 
                         <div class="form-group">
-                            <button type="button" class="btn btn-danger" style="margin-left: 50px;" >Xác nhận</button>
-                        </div>
+                            <input type="submit" class="btn btn-primary" name="submit" value="Xác nhận"> 
+                            </div>  
                     </form>
                 </div>
             </div>        

@@ -6,7 +6,7 @@
   } 
   
 if(isset($_POST["id"]) && !empty($_POST["id"])){
-    $money = $cost = "";
+    $money = $cost = $vip = "";
     
   $sql = "SELECT * FROM user WHERE id = ? ";
         if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
@@ -16,7 +16,8 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
                 $result = mysqli_stmt_get_result($PrepareQuery); 
                 if(mysqli_num_rows($result) == 1){
                     $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-                    $money = $row['money'];          		
+                    $money = $row['money'];        
+                    $vip = $row['vip'];        	
                 }
 			}
 		} 
@@ -33,7 +34,10 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
                     }
                 }
             } 
-              
+    if(vipLeft($vip) > 0 )
+     {
+        $cost=($cost*7)/10;
+     }
     if ($money < $cost) {
         echo "không đủ tiền";
     }

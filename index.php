@@ -59,7 +59,7 @@ session_start();
       <ul class="nav navbar-nav">   
         <li class="active"><a href="#">Trang chủ</a></li>
         <li><a href="<?php echo CLIENT_PATH; ?>transfer.php">Chuyển tiền</a></li>
-        <li><a href="<?php echo CLIENT_PATH; ?>rechargeCard.php">Nạp thẻ</a></li>
+        <li><a href="<?php echo CLIENT_PATH; ?>card.php">Nạp thẻ</a></li>
         <li><a href="<?php echo CLIENT_PATH; ?>UpdateVip.php">Nâng vip</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -74,6 +74,7 @@ session_start();
 <?php
   $username="";
   $money="";
+  $vip="";
 	$sql = "SELECT * FROM user WHERE id = ? ";
   if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
       mysqli_stmt_bind_param($PrepareQuery, "i", $param_id);
@@ -84,6 +85,7 @@ session_start();
               $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
               $username = $row['username'];  
               $money =    $row['money'];  
+              $vip =    $row['vip'];  
           }
         }
       }
@@ -91,7 +93,17 @@ session_start();
 <div class="form-group">
 <p><b>Username : </b><?php echo $username; ?></p>
 <p><b>Số tiền hiện có : </b><?php echo $money; ?> VNĐ</p>
-                    </div>
+<p><b>Account : </b><?php 
+  $isVip = 0;
+  if(vipLeft($vip) > 0 )
+  {
+    echo "Vip";
+    $isVip = 1;
+  }
+  else 
+  echo "Thường";
+?> </p>
+</div>
 
 
 
@@ -109,8 +121,19 @@ if($result = mysqli_query($mysqli, $sql)){
       echo '<div class="panel panel-success">';
       echo '<div class="panel-heading">'.$row['name'].'</div>';
       echo '<div class="panel-body"><img src="'.PICTURE_PATH.$row['picture'].'" class="img-responsive" width="100" height="100" alt="Image">'. $row['content'].'</div>';
-      echo '<div class="panel-footer">'.$row['cost'].' VNĐ<br>
-      <a href="'.CLIENT_PATH.'buy.php?id='.$row['id'].'" title="Mua đồ" data-toggle="tooltip">
+      echo '<div class="panel-footer">';
+      if ($isVip == 1) {
+        echo ($row['cost']*7)/10;
+      }
+      else
+      {
+        echo $row['cost'];
+      }
+      echo ' VNĐ ';
+      if ($isVip == 1) {
+        echo "/  (30% discount) ";
+      }
+      echo '<br><a href="'.CLIENT_PATH.'buy.php?id='.$row['id'].'" title="Mua đồ" data-toggle="tooltip">
       <button type="button" class="btn btn-danger">Mua</button></a>
       </div>';
       echo '</div>';

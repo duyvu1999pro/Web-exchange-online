@@ -4,7 +4,58 @@ session_start();
 	if(!isset($_SESSION['userlogin'])){
 		header("Location: ".ROOT_PATH."login.php");
 	}
+  $check = 1;
+  $username="";
+  $target_id ="";
+  $money =0;
+  $sql = "SELECT * FROM user WHERE id = ? ";
+  if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+      mysqli_stmt_bind_param($PrepareQuery, "i", $param_id);
+      $param_id = $_SESSION['userlogin'];
+      if(mysqli_stmt_execute($PrepareQuery)){
+          $result = mysqli_stmt_get_result($PrepareQuery); 
+          if(mysqli_num_rows($result) == 1){
+              $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+              $username = $row['username'];  
+              $money =    $row['money'];  
+          }
+        }
+      }
 
+  if(isset($_POST["submit"]) && !empty($_POST["submit"]) ){
+    $sql = "SELECT * FROM user WHERE username = ? ";
+        if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+            mysqli_stmt_bind_param($PrepareQuery, "s", $temp_username);
+            $temp_username = $_POST["username"];
+            if(mysqli_stmt_execute($PrepareQuery)){
+                $result = mysqli_stmt_get_result($PrepareQuery); 
+                if(mysqli_num_rows($result) == 1){
+                    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                    $target_id = $row['id'];    
+                }
+                else
+                 {
+                  echo "tài khoản ko tồn tại.  ";
+                  $check = 0;
+                 } 
+			}
+		} 
+
+    if ($_POST['money']>$money) {
+      $check = 0;
+      echo "không đủ tiền";
+    }
+    if ($check == 1) {
+      $sql = "call give(?,?,?)";
+      if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
+          mysqli_stmt_bind_param($PrepareQuery, "iii",$user_id, $target_id,$temp_money);
+          $temp_money = $_POST['money'];
+          $user_id = $_SESSION['userlogin'];
+         mysqli_stmt_execute($PrepareQuery);
+         echo "chuyển tiền thành công";
+      } 
+    }
+  }
 ?>
 
 <?php if(isset($_SESSION['userlogin'])){ ?>
@@ -57,7 +108,7 @@ session_start();
       <ul class="nav navbar-nav">   
         <li><a href="<?php echo ROOT_PATH; ?>index.php">Trang chủ</a></li>
         <li class="active"><a href="transfer.php">Chuyển tiền</a></li>
-        <li><a href="rechargeCard.php">Nạp thẻ</a></li>
+        <li><a href="card.php">Nạp thẻ</a></li>
         <li><a href="UpdateVip.php">Nâng vip</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -69,23 +120,6 @@ session_start();
   </div>
 
 </nav>
-<?php
-  $username="";
-  $money="";
-	$sql = "SELECT * FROM user WHERE id = ? ";
-  if($PrepareQuery = mysqli_prepare($mysqli, $sql)){
-      mysqli_stmt_bind_param($PrepareQuery, "i", $param_id);
-      $param_id = $_SESSION['userlogin'];
-      if(mysqli_stmt_execute($PrepareQuery)){
-          $result = mysqli_stmt_get_result($PrepareQuery); 
-          if(mysqli_num_rows($result) == 1){
-              $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-              $username = $row['username'];  
-              $money =    $row['money'];  
-          }
-        }
-      }
- ?>
 <div class="form-group">
 <p><b>Username : </b><?php echo $username; ?></p>
 <p><b>Số tiền hiện có : </b><?php echo $money; ?> VNĐ</p>
@@ -94,22 +128,22 @@ session_start();
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-6">
-                    <p>Số tiền hiện có: 324</p>             
+                    <p>Chuyển tiền</p>             
                     <form action="transfer.php" method="post"  enctype="multipart/form-data">
                         <div class="form-group">
-                            <label>Tài khoản nhận</label>
+                            <label>Tài khoản nhận (username) </label>
                             <input type="text" name="username" class="form-control" size="30" >
                             <span class="invalid-feedback"></span>
                         </div>
                         <div class="form-group">
                             <label>Số tiền chuyển</label>
-                            <input type="text" name="password" class="form-control" size="30" >                       
+                            <input type="number" name="money" class="form-control" size="30" >                       
                             <span class="invalid-feedback"></span>
                            
                         </div>
                         <div class="form-group">
-                            <button type="button" class="btn btn-danger" style="margin-left: 50px;" >Xác nhận</button>
-                        </div>
+                            <input type="submit" class="btn btn-primary" name="submit" value="Xác nhận"> 
+                            </div>  
                     </form>
                 </div>
             </div>        
